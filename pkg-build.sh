@@ -89,10 +89,17 @@ BootstrapLinux() {
 	mv r-builder-${CI}-${RVERSION}/R-${RVERSION} .
     )
 
+    # Add repository holding CRAN binaries
+    Retry sudo apt-add-repository -y "deb http://cran.rstudio.com/bin/linux/ubuntu `lsb_release -cs`/"
+    Retry sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
+    Retry sudo apt-add-repository -y ppa:marutter/c2d4u
+
+    # Refresh
+    Retry sudo apt-get -y update -qq
+
     # Install an R development environment. qpdf is also needed for
     # --as-cran checks:
     #   https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
-    Retry sudo apt-get -y update -qq
     Retry sudo apt-get -y install --no-install-recommends qpdf gfortran
 
     # Process options
@@ -200,6 +207,25 @@ RInstall() {
 
     >&2 echo "Installing R package(s): $@"
     Rscript -e 'install.packages(commandArgs(TRUE), repos="'"${CRAN}"'")' "$@"
+}
+
+RInstallBinary() {
+    if [[ -z "$#" ]]; then
+        echo "No arguments to install_r_binary"
+        exit 1
+    fi
+
+    if [[ "Linux" != "${OS}" ]] || [[ -n "${FORCE_SOURCE_INSTALL}" ]]; then
+        echo "Fallback: Installing from source"
+        RInstall "$@"
+        return
+    fi
+
+    echo "Installing *binary* R packages: $*"
+    r_packages=$(echo $* | tr '[:upper:]' '[:lower:]')
+    r_debs=$(for r_package in ${r_packages}; do echo -n "r-cran-${r_package} "; done)
+
+    AptGetInstall ${r_debs}
 }
 
 BiocInstall() {
@@ -365,6 +391,11 @@ case $COMMAND in
     ## Install an R dependency from CRAN
     "install_r"|"r_install")
         RInstall "$@"
+        ;;
+    ##
+    ## Install an R binary dependency from CRAN via apt-get
+    "install_r_binary"|"r_install_binary")
+        RInstallBinary "$@"
         ;;
     ##
     ## Install an R dependency from Bioconductor
