@@ -89,18 +89,31 @@ BootstrapLinux() {
 	mv r-builder-${CI}-${RVERSION}/R-${RVERSION} .
     )
 
-    # Add repository holding CRAN binaries
-    Retry sudo apt-add-repository -y "deb http://cran.rstudio.com/bin/linux/ubuntu `lsb_release -cs`/"
-    Retry sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
-    Retry sudo apt-add-repository -y ppa:marutter/c2d4u
+    # Set up our CRAN mirror.
+    export CRAN="http://cran.rstudio.com"
+    sudo add-apt-repository -y "deb ${CRAN}/bin/linux/ubuntu $(lsb_release -cs)/"
+    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
 
-    # Refresh
+    # Add marutter's c2d4u repository.
+    sudo add-apt-repository -y "ppa:marutter/rrutter"
+    sudo add-apt-repository -y "ppa:marutter/c2d4u"
+
+    # Update after adding all repositories.  Retry several times to work around
+    # flaky connection to Launchpad PPAs.
     Retry sudo apt-get -y update -qq
 
     # Install an R development environment. qpdf is also needed for
     # --as-cran checks:
     #   https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
     Retry sudo apt-get -y install --no-install-recommends qpdf gfortran
+
+    # Change permissions for /usr/local/lib/R/site-library
+    # This should really be via 'staff adduser travis staff'
+    # but that may affect only the next shell
+    ls -l /usr/local/lib/
+    ls -l /usr/local/lib/R/
+    ls -l /usr/local/lib/R/site-library
+    sudo chmod 2777 /usr/local/lib/R /usr/local/lib/R/site-library
 
     # Process options
     BootstrapLinuxOptions
@@ -176,7 +189,7 @@ AptGetInstall() {
     fi
 
     >&2 echo "Installing apt package(s) $@"
-    Retry sudo apt-get -y install "$@"
+    Retry sudo apt-get install "$@"
 }
 
 DpkgCurlInstall() {
@@ -258,6 +271,7 @@ InstallBiocDeps() {
 
 DumpSysinfo() {
     >&2 echo "Dumping system information."
+    EnsureDevtools
     R -e '.libPaths(); options(width = 90) ; devtools::session_info(); installed.packages()'
 }
 
