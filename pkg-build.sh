@@ -110,9 +110,8 @@ BootstrapLinux() {
     # Change permissions for /usr/local/lib/R/site-library
     # This should really be via 'staff adduser travis staff'
     # but that may affect only the next shell
-    ls -l "${BINDIR}/R-${RVERSION}/"
-    ls -R "${BINDIR}/R-${RVERSION}/"
-#    sudo chmod 2777 /usr/local/lib/R /usr/local/lib/R/site-library
+    sudo mkdir -p /usr/local/lib/R/site-library
+    sudo chmod 2777 /usr/local/lib/R /usr/local/lib/R/site-library
 
     # Process options
     BootstrapLinuxOptions
