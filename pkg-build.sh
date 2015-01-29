@@ -187,7 +187,7 @@ AptGetInstall() {
     fi
 
     >&2 echo "Installing apt package(s) $@"
-    Retry sudo apt-get install "$@"
+    Retry sudo apt-get --no-upgrade -V install "$@"
 }
 
 DpkgCurlInstall() {
