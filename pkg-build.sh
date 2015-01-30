@@ -64,6 +64,7 @@ Bootstrap() {
     if ! (test -e .Rbuildignore && grep -q 'travis-tool' .Rbuildignore); then
         echo '^pkg-build\.sh$' >>.Rbuildignore
     fi
+
 }
 
 InstallPandoc() {
@@ -131,6 +132,7 @@ BootstrapLinuxOptions() {
     if [[ -n "$BOOTSTRAP_PANDOC" ]]; then
         InstallPandoc 'linux/debian/x86_64'
     fi
+    Rscript -e "sessionInfo()"
 }
 
 BootstrapMac() {
