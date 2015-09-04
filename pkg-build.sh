@@ -110,13 +110,10 @@ BootstrapLinux() {
 ##    sudo add-apt-repository -y "ppa:marutter/rrutter"
 ##    sudo add-apt-repository -y "ppa:marutter/c2d4u"
 
-    # Update after adding all repositories.  Retry several times to work around
-    # flaky connection to Launchpad PPAs.
-    Retry sudo apt-get -y update -qq
-
     # Install an R development environment. qpdf is also needed for
     # --as-cran checks:
     #   https://stat.ethz.ch/pipermail/r-help//2012-September/335676.html
+    Retry sudo apt-get -y update -qq
     Retry sudo apt-get -y install --no-install-recommends qpdf gfortran
 
 ##    # Change permissions for /usr/local/lib/R/site-library
@@ -207,7 +204,7 @@ AptGetInstall() {
     fi
 
     >&2 echo "Installing apt package(s) $@"
-    Retry sudo apt-get install "$@"
+    Retry sudo apt-get -y install "$@"
 }
 
 DpkgCurlInstall() {
