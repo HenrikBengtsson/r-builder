@@ -34,7 +34,7 @@ fi
 
 GetRVersion() {
     RVERSION=$(wget -qO- ${RVERSIONS_URL}${RVERSION} |
-		      grep version | tail -1 | cut -f2 -d: | tr -d '", ')
+                grep version | tail -1 | cut -f2 -d: | tr -d '", ')
 }
 
 if [ -z "$RVERSION" ]; then
@@ -90,15 +90,15 @@ InstallPandoc() {
 BootstrapLinux() {
     # Get R from r-builder
     (
-	mkdir -p ${BINDIR}
-	chown $(id -un):$(id -gn) ${BINDIR}
-	cd ${BINDIR}
-	if ! curl --fail -s -OL ${RBUILDER}/archive/${CI}-${RVERSION}.zip; then
-	    >&2 echo "This R version is not available for this CI"
-	    exit 1
-	fi
-	unzip -q ${CI}-${RVERSION}.zip
-	mv r-builder-${CI}-${RVERSION}/R-${RVERSION} .
+        mkdir -p ${BINDIR}
+        chown $(id -un):$(id -gn) ${BINDIR}
+        cd ${BINDIR}
+        if ! curl --fail -s -OL ${RBUILDER}/archive/${CI}-${RVERSION}.zip; then
+            >&2 echo "This R version is not available for this CI"
+            exit 1
+        fi
+        unzip -q ${CI}-${RVERSION}.zip
+        mv r-builder-${CI}-${RVERSION}/R-${RVERSION} .
     )
 
 ##    # Set up our CRAN mirror.
@@ -123,10 +123,10 @@ BootstrapLinux() {
 ##    sudo chmod 2777 /usr/local/lib/R /usr/local/lib/R/site-library
 
     if [ $CI = "travis" -a $RVERSION = "devel" ]; then
-	sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 7635B973
-	sudo add-apt-repository -y ppa:ubuntu-lxc/buildd-backports
-	sudo apt-get update
-	sudo apt-get install -y curl libcurl4-openssl-dev
+        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 7635B973
+        sudo add-apt-repository -y ppa:ubuntu-lxc/buildd-backports
+        sudo apt-get update
+        sudo apt-get install -y curl libcurl4-openssl-dev
     fi
 
     # Process options
@@ -485,18 +485,18 @@ case $COMMAND in
     ##
     ## Run an R script
     "run_script")
-	RunScript "$@"
-	;;
+        RunScript "$@"
+        ;;
 
     ##
     ## Run make
     "make")
-	RunMake "$@"
-	;;
+        RunMake "$@"
+        ;;
 
     ##
     ## Print the R bin path
     "r_path")
-	RPath "$@"
-	;;
+        RPath "$@"
+        ;;
 esac
