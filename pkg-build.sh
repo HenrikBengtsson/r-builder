@@ -18,6 +18,8 @@ PANDOC_VERSION='1.12.4.2'
 PANDOC_DIR="${HOME}/opt"
 PANDOC_URL="https://s3.amazonaws.com/rstudio-buildtools/pandoc-${PANDOC_VERSION}.zip"
 
+RVERSIONS_URL="http://rversions.r-pkg.org/r-"
+
 ## Detect CI
 if [ "$DRONE" == "true" ]; then
     export CI="drone"
@@ -30,9 +32,18 @@ else
     exit 1
 fi
 
+GetRVersion() {
+    RVERSION=$(wget -qO- ${RVERSIONS_URL}${RVERSION} |
+		      grep version | tail -1 | cut -f2 -d: | tr -d '", ')
+}
+
 if [ -z "$RVERSION" ]; then
    >&2 echo "RVERSION environment variable is not set, will use R-devel"
    RVERSION=devel
+elif [ "$RVERSION" == "release" -o "$RVERSION" == "oldrel" ]; then
+    >&2 printf "%s" "r-${RVERSION} corresponds to R version "
+    GetRVersion
+    >&2 echo ${RVERSION}
 fi
 
 # MacTeX installs in a new $PATH entry, and there's no way to force
@@ -113,6 +124,13 @@ BootstrapLinux() {
 ##    # but that may affect only the next shell
 ##    sudo mkdir -p /usr/local/lib/R/site-library
 ##    sudo chmod 2777 /usr/local/lib/R /usr/local/lib/R/site-library
+
+    if [ $CI = "travis" -a $RVERSION = "devel" ]; then
+	sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 7635B973
+	sudo add-apt-repository -y ppa:ubuntu-lxc/buildd-backports
+	sudo apt-get update
+	sudo apt-get install -y curl libcurl4-openssl-dev
+    fi
 
     # Process options
     BootstrapLinuxOptions

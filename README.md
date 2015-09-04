@@ -1,9 +1,7 @@
 
 # R+CI
 
-Check your R package with multiple versions of R, on Travis or Semaphore.
-Very much like [r-travis](https://github.com/craigcitro/r-travis), but
-supporting multiple R versions, including R-devel.
+Check your R package with multiple versions of R, including R-devel, on Travis or Semaphore.
 
 ## CIs
 
@@ -15,10 +13,19 @@ The currently supported CIs are:
 
 Currently supported R versions:
 * R-devel, built hourly.
+* R-release, refers to the current stable release
+* R-oldrel, refers to last release from the previous minor version
+* R 3.2.2
+* R 3.2.1
+* R 3.2.0
+* R 3.1.3
 * R 3.1.2
 * R 3.1.1
 * R 3.1.0
 * R 3.0.3
+
+We recommend that you test your package with `R-devel`, `R-release` and `R-oldrel`.
+CRAN maintainers run their tests on these versions as well.
 
 ## Status for R-devel builds
 
@@ -93,18 +100,6 @@ So the steps you need are
    for your project.
 
 See also the [Semaphore docs](https://semaphoreapp.com/docs/) for more details.
-
-## Alternatives
-
-[r-travis](https://github.com/craigcitro/r-travis) is an alternative that
-is probably more mature. A lot of packages use it, and most of the
-`r-builder`build script is from `r-travis`. It does not support R-devel,
-though, or matrix builds, only a single version of R, usually the latest
-stable release.
-
-[r-appveyor](https://github.com/krlmlr/r-appveyor) is an excellent project
-to build and check your R package on Windows, using the
-[Appveyor](http://appveyor.com) CI.
 
 ## Plans
 
