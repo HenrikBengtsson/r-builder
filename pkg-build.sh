@@ -22,11 +22,11 @@ RVERSIONS_URL="http://rversions.r-pkg.org/r-"
 
 ## Detect CI
 if [ "$DRONE" == "true" ]; then
-    export RBUILDER_CI="drone"
+    export CI_NAME="drone"
 elif [ "$SEMAPHORE" == "true" ]; then
-    export RBUILDER_CI="semaphore"
+    export CI_NAME="semaphore"
 elif [ "$TRAVIS" == "true" ]; then
-    export RBUILDER_CI="travis"
+    export CI_NAME="travis"
 else
     >&2 echo "Unknown CI"
     exit 1
@@ -90,15 +90,15 @@ InstallPandoc() {
 BootstrapLinux() {
     # Get R from r-builder
     (
-        mkdir -p ${BINDIR}
-        chown $(id -un):$(id -gn) ${BINDIR}
-        cd ${BINDIR}
-        if ! curl --fail -s -OL ${RBUILDER}/archive/${RBUILDER_CI}-${RVERSION}.zip; then
-            >&2 echo "This R version is not available for this CI"
-            exit 1
-        fi
-        unzip -q ${RBUILDER_CI}-${RVERSION}.zip
-        mv r-builder-${RBUILDER_CI}-${RVERSION}/R-${RVERSION} .
+	mkdir -p ${BINDIR}
+	chown $(id -un):$(id -gn) ${BINDIR}
+	cd ${BINDIR}
+	if ! curl --fail -s -OL ${RBUILDER}/archive/${CI_NAME}-${RVERSION}.zip; then
+	    >&2 echo "This R version is not available for this CI"
+	    exit 1
+	fi
+	unzip -q ${CI_NAME}-${RVERSION}.zip
+	mv r-builder-${CI_NAME}-${RVERSION}/R-${RVERSION} .
     )
 
 ##    # Set up our CRAN mirror.
@@ -116,17 +116,11 @@ BootstrapLinux() {
     Retry sudo apt-get -y update -qq
     Retry sudo apt-get -y install --no-install-recommends qpdf gfortran
 
-##    # Change permissions for /usr/local/lib/R/site-library
-##    # This should really be via 'staff adduser travis staff'
-##    # but that may affect only the next shell
-##    sudo mkdir -p /usr/local/lib/R/site-library
-##    sudo chmod 2777 /usr/local/lib/R /usr/local/lib/R/site-library
-
-    if [ $RBUILDER_CI = "travis" -a $RVERSION = "devel" ]; then
-        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 7635B973
-        sudo add-apt-repository -y ppa:ubuntu-lxc/buildd-backports
-        sudo apt-get update
-        sudo apt-get install -y curl libcurl4-openssl-dev
+    if [ $CI_NAME = "travis" -a $RVERSION = "devel" ]; then
+	sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 7635B973
+	sudo add-apt-repository -y ppa:ubuntu-lxc/buildd-backports
+	sudo apt-get update
+	sudo apt-get install -y curl libcurl4-openssl-dev
     fi
 
     # Process options
